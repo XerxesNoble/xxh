@@ -3,6 +3,8 @@
 const fs = require('fs')
 const read = require('read')
 const chalk = require('chalk')
+const Client = require('ssh2').Client
+
 
 const __rc = `${__dirname}/.xxhrc`
 
@@ -24,17 +26,59 @@ function main(){
     case 'edit':
       xxh.log('info', 'edit command comming soon!')
     break
+    default:
+      xxh.run(argv[argv.length-1])
+    break
   }
 }
 
+xxh.connect = (config) => {
+  var conn = new Client();
+  conn.on('ready', function() {
+    console.log('Client :: ready');
+    conn.shell(function(err, stream) {
+      if (err) throw err;
+      stream.on('close', function() {
+        console.log('Stream :: close');
+        conn.end();
+      }).on('data', function(data) {
+        console.log('STDOUT: ' + data);
+      }).stderr.on('data', function(data) {
+        console.log('STDERR: ' + data);
+      });
+      stream.end('ls -l\nexit\n');
+    });
+  }).connect({
+    host: config.address,
+    port: config.port,
+    username: config.user,
+    password: config.key
+  })
+}
+
+xxh.run = (name) => {
+  let config = xxh.get(name)
+  if(config) {
+    xxh.log('info', `connecting to: ${chalk.bold(name)}`)
+    // Connexct via SSH
+    xxh.connect(config)
+  } else {
+    return xxh.log('error', `${chalk.bold(name)} is not a command or a matching address.`)
+  }
+}
 
 xxh.add = (name, address, _private) => {
   let config = xxh.get(name)
   if(config) {
     return xxh.log('warn', `${chalk.bold(name)} already exists.`)
   } else {
+    let a = address.split(':')
+    let b = a[0].split('@')
+    console.log(b)
     config = {
-      address,
+      user: b[0],
+      address: b[1],
+      port: a[1] || 22,
       private: _private,
       key: null
     }
@@ -81,7 +125,9 @@ xxh.list = () => {
     if (rc.hasOwnProperty(item)) {
       console.log(`\n`)
       console.log(`\t${chalk.bold('Name:      ')} ${item}`)
+      console.log(`\t${chalk.bold('User:      ')} ${rc[item].user}`)
       console.log(`\t${chalk.bold('Address:   ')} ${rc[item].address}`)
+      console.log(`\t${chalk.bold('Port:      ')} ${rc[item].port}`)
       console.log(`\t${chalk.bold('Private:   ')} ${rc[item].private}`)
     }
   }
@@ -102,7 +148,7 @@ xxh.appendToRc = (name, config) => {
 
 xxh.rc = () => {
   let rc = fs.readFileSync(__rc, 'utf8')
-  return JSON.parse(rc)
+  return rc ? JSON.parse(rc) : {}
 }
 
 xxh.log = (type, message) => {
