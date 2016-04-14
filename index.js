@@ -3,8 +3,6 @@
 const fs = require('fs')
 const read = require('read')
 const chalk = require('chalk')
-const Client = require('ssh2').Client
-
 
 const __rc = `${__dirname}/.xxhrc`
 
@@ -33,27 +31,7 @@ function main(){
 }
 
 xxh.connect = (config) => {
-  var conn = new Client();
-  conn.on('ready', function() {
-    console.log('Client :: ready');
-    conn.shell(function(err, stream) {
-      if (err) throw err;
-      stream.on('close', function() {
-        console.log('Stream :: close');
-        conn.end();
-      }).on('data', function(data) {
-        console.log('STDOUT: ' + data);
-      }).stderr.on('data', function(data) {
-        console.log('STDERR: ' + data);
-      });
-      stream.end('ls -l\nexit\n');
-    });
-  }).connect({
-    host: config.address,
-    port: config.port,
-    username: config.user,
-    password: config.key
-  })
+  console.log(config)
 }
 
 xxh.run = (name) => {
