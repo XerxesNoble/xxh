@@ -14,7 +14,10 @@ function main(){
   switch(mode){
     case 'add':
       xxh.add(argv[argv.length-2], argv[argv.length-1], argv.indexOf('-p') > -1)
-    break;
+    break
+    case 'delete':
+      xxh.delete(argv[argv.length-1])
+    break
     case 'list':
       xxh.list()
     break
@@ -25,7 +28,7 @@ function main(){
 xxh.add = (name, address, _private) => {
   let config = xxh.get(name)
   if(config) {
-    return xxh.log('warn', `${name} already exists.`)
+    return xxh.log('warn', `${chalk.bold(name)} already exists.`)
   } else {
     config = {
       address,
@@ -50,6 +53,16 @@ xxh.add = (name, address, _private) => {
     })
   } else {
     xxh.appendToRc(name, config)
+  }
+}
+
+xxh.delete = (name) => {
+  let rc = xxh.rc()
+  if(rc[name]) {
+    delete rc[name]
+    rc = JSON.stringify(rc)
+    fs.writeFileSync(__rc, rc, 'utf8')
+    xxh.log('info', `${name} was removed!`)
   }
 }
 
@@ -86,7 +99,7 @@ xxh.rc = () => {
 xxh.log = (type, message) => {
   switch(type){
     case 'info':
-      console.log(`${chalk.blue('[ INFO ]')} :: ${message}`)
+      console.log(`${chalk.bgCyan.black('[ INFO ]')} :: ${message}`)
     break;
     case 'warn':
       console.log(`${chalk.bgYellow.black('[ WARN ]')} :: ${message}`)
