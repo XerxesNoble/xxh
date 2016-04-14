@@ -1,6 +1,8 @@
 'use strict'
 
 const fs = require('fs')
+const read = require('read')
+
 
 const argv = process.argv
 const __rc = `${__dirname}/.xxhrc`
@@ -19,16 +21,26 @@ xxh.add = (name, address, _private) => {
   let config = xxh.get(name)
   if(config) {
     return xxh.log('warn', `${name} already exists.`)
-  }
-  
-  let config = {
-    address,
-    private: _private,
-    key: null
+  } else {
+    config = {
+      address,
+      private: _private,
+      key: null
+    }
   }
   
   if(_private){
-    
+    read({
+      prompt: 'password: ',
+      silent: true,
+      replace: '•'
+    }, (error, result) => {
+      if(error) return xxh.log('error', error)
+      else {
+        config.key = result
+        xxh.appendToRc(name, config)
+      }
+    })
   } else {
     xxh.appendToRc(name, config)
   }
@@ -43,8 +55,8 @@ xxh.get = (name) => {
 xxh.appendToRc = (name, config) => {
   let rc = xxh.rc()
   rc[name] = config
-  
-  fs.readFileSync(__rc, rc, 'utf8')
+  rc = JSON.stringify(rc)
+  fs.writeFileSync(__rc, rc, 'utf8')
   xxh.log('info', `${name} was added!`)
 }
 
@@ -67,4 +79,4 @@ xxh.log = (type, message) => {
   }
 }
 
-main();
+main()
