@@ -22,7 +22,7 @@ function main(){
       xxh.list()
     break
     case 'edit':
-      xxh.log('info', 'edit command comming soon!')
+      xxh.log('info', '`xxh edit` command comming soon!')
     break
     default:
       xxh.run(argv[argv.length-1])
@@ -132,13 +132,13 @@ xxh.rc = () => {
 xxh.log = (type, message) => {
   switch(type){
     case 'info':
-      console.log(`${chalk.bgCyan.black('[ INFO ]')} :: ${message}`)
+      console.log(`\n\t${chalk.bgCyan.black('[ INFO ]')} :: ${message}`)
     break;
     case 'warn':
-      console.log(`${chalk.bgYellow.black('[ WARN ]')} :: ${message}`)
+      console.log(`\n\t${chalk.bgYellow.black('[ WARN ]')} :: ${message}`)
     break;
     case 'error':
-      console.log(`${chalk.bgRed.white('[ ERR ]')} :: ${message}`)
+      console.log(`\n\t${chalk.bgRed.white('[ ERR ]')} :: ${message}`)
     break;
   }
 }
