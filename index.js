@@ -2,6 +2,7 @@
 
 const fs = require('fs')
 const read = require('read')
+const chalk = require('chalk')
 
 
 const argv = process.argv
@@ -13,9 +14,13 @@ function main(){
   switch(mode){
     case 'add':
       xxh.add(argv[argv.length-2], argv[argv.length-1], argv.indexOf('-p') > -1)
+    break;
+    case 'list':
+      xxh.list()
     break
   }
 }
+
 
 xxh.add = (name, address, _private) => {
   let config = xxh.get(name)
@@ -35,8 +40,10 @@ xxh.add = (name, address, _private) => {
       silent: true,
       replace: '•'
     }, (error, result) => {
-      if(error) return xxh.log('error', error)
-      else {
+      if(error) {
+        return xxh.log('error', error)
+      } else {
+        // TODO: Encrypt key
         config.key = result
         xxh.appendToRc(name, config)
       }
@@ -44,7 +51,18 @@ xxh.add = (name, address, _private) => {
   } else {
     xxh.appendToRc(name, config)
   }
-  
+}
+
+xxh.list = () => {
+  let rc = xxh.rc()
+  for (var item in rc) {
+    if (rc.hasOwnProperty(item)) {
+      console.log(`\n`)
+      console.log(`\t${chalk.bold('Name:      ')} ${item}`)
+      console.log(`\t${chalk.bold('Address:   ')} ${rc[item].address}`)
+      console.log(`\t${chalk.bold('Private:   ')} ${rc[item].private}`)
+    }
+  }
 }
 
 xxh.get = (name) => {
@@ -68,13 +86,13 @@ xxh.rc = () => {
 xxh.log = (type, message) => {
   switch(type){
     case 'info':
-      console.log(`[ INFO ] :: ${message}`)
+      console.log(`${chalk.blue('[ INFO ]')} :: ${message}`)
     break;
     case 'warn':
-      console.log(`[ WARN ] :: ${message}`)
+      console.log(`${chalk.bgYellow.black('[ WARN ]')} :: ${message}`)
     break;
     case 'error':
-      console.log(`[ ERR ] :: ${message}`)
+      console.log(`${chalk.bgRed.white('[ ERR ]')} :: ${message}`)
     break;
   }
 }
