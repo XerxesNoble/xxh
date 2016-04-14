@@ -4,9 +4,9 @@ const fs = require('fs')
 const read = require('read')
 const chalk = require('chalk')
 
+const __rc = `${__dirname}/.xxhrc`
 
 const argv = process.argv
-const __rc = `${__dirname}/.xxhrc`
 const xxh = {}
 
 function main(){
@@ -16,10 +16,13 @@ function main(){
       xxh.add(argv[argv.length-2], argv[argv.length-1], argv.indexOf('-p') > -1)
     break
     case 'delete':
-      xxh.delete(argv[argv.length-1])
+      xxh.delete(argv[argv.length-1], argv.indexOf('--all') > -1)
     break
     case 'list':
       xxh.list()
+    break
+    case 'edit':
+      xxh.log('info', 'edit command comming soon!')
     break
   }
 }
@@ -56,8 +59,14 @@ xxh.add = (name, address, _private) => {
   }
 }
 
-xxh.delete = (name) => {
+xxh.delete = (name, all) => {
   let rc = xxh.rc()
+  if(!rc) return
+  
+  if(all) {
+    return Object.keys(rc).forEach(xxh.delete)
+  }
+  
   if(rc[name]) {
     delete rc[name]
     rc = JSON.stringify(rc)
