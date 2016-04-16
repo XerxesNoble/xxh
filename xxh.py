@@ -32,6 +32,7 @@ class Xxh(object):
         elif mode == 'connect': self.connect()
     
     def config_exists(self, name):
+        # TODO: Probably just use thise:  self.config.has_section(name)
         try:
             self.config.get(name, 'connection')
             return True
@@ -46,20 +47,30 @@ class Xxh(object):
             # Create section add connection
             self.config.add_section(name)
             self.config.set(name, 'connection', connection)
+            self.config.set(name, 'private', 'Yes' if private else 'No')
+            
             # Setup private if -p was passed
             if private:
                 # Double check with user
                 if self.query('Set up rsa keys for {0}?'.format(name)):
                     print('OKAY!')
                     self.setup_rsa(connection)
-                    # self.config.set(name, 'private', str(private))
+                else:
+                    self.config.set(name, 'private', 'No')
+                
             # Write to config
             with open(self.rc, 'w') as c:
                 self.config.write(c)
                 self.log('info', '{0} was added!'.format(name))
         
     def list(self):
-        print('list')
+        print('')
+        for section in self.config.sections():
+            conn = self.config.get(section, 'connection')
+            priv = self.config.get(section, 'private')
+            print('\tName: {0} \n\tConnection: {1} \n\tAuthorized: {2}\n'.format(section, conn, priv))
+            
+            
 
     def delete(self):
         print('delete')
@@ -72,6 +83,7 @@ class Xxh(object):
         print('connect')
         
     def log(self, type, message):
+        # TODO: Add CLI colours so its all pretty and stuff.
         if type is 'info':
             # 'black', 'on_cyan',
             print('\n\t{0} :: {1}'.format('[ INFO ]', message))
