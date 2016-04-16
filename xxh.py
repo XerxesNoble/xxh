@@ -26,22 +26,15 @@ class Xxh(object):
         
         # Run Actions
         if   mode == 'add'    : self.add(argv[len(argv)-2], argv[len(argv)-1], '-p' in argv)
-        elif mode == 'list'   : self.list()
+        elif mode == 'list'   : self.list('-v' in argv)
         elif mode == 'delete' : self.delete()
         elif mode == 'edit'   : self.edit()
         elif mode == 'connect': self.connect()
+        elif mode == 'select': self.connect() # select from a cli list ising arrows and enter
     
-    def config_exists(self, name):
-        # TODO: Probably just use thise:  self.config.has_section(name)
-        try:
-            self.config.get(name, 'connection')
-            return True
-        except configparser.NoSectionError:
-            return False
-    
-    # ./xxh.py add -p sandbox xerxes@jscd-sandbox.cloudapp.net
+    # xxh add [-p] [name] [connection]
     def add(self, name, connection, private):
-        if self.config_exists(name):
+        if self.config.has_section(name):
             self.log('warn', '{0} already exists.'.format(name))
         else:
             # Create section add connection
@@ -62,16 +55,18 @@ class Xxh(object):
             with open(self.rc, 'w') as c:
                 self.config.write(c)
                 self.log('info', '{0} was added!'.format(name))
-        
-    def list(self):
+    
+    # xxh list [-v]
+    def list(self, verbose):
         print('')
         for section in self.config.sections():
-            conn = self.config.get(section, 'connection')
-            priv = self.config.get(section, 'private')
-            print('\tName: {0} \n\tConnection: {1} \n\tAuthorized: {2}\n'.format(section, conn, priv))
-            
-            
-
+            if not verbose:
+                print('\t➔ {0} \n'.format(section))
+            else:
+                conn = self.config.get(section, 'connection')
+                priv = self.config.get(section, 'private')
+                print('\tName: {0} \n\tConnection: {1} \n\tAuthorized: {2}\n'.format(section, conn, priv))
+        
     def delete(self):
         print('delete')
         
