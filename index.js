@@ -31,7 +31,25 @@ function main(){
 }
 
 xxh.connect = (config) => {
-  console.log(config)
+  var pty = require('pty.js');
+
+  var term = pty.spawn('bash', [], {
+    name: 'xterm-color',
+    cols: 80,
+    rows: 30,
+    cwd: process.env.HOME,
+    env: process.env
+  });
+
+  term.on('data', function(data) {
+    console.log('---',data);
+  });
+
+  term.write('ls\r');
+  term.resize(100, 40);
+  term.write('ls /\r');
+
+  console.log(term.process)
 }
 
 xxh.run = (name) => {
@@ -52,7 +70,6 @@ xxh.add = (name, address, _private) => {
   } else {
     let a = address.split(':')
     let b = a[0].split('@')
-    console.log(b)
     config = {
       user: b[0],
       address: b[1],
@@ -63,19 +80,29 @@ xxh.add = (name, address, _private) => {
   }
   
   if(_private){
-    read({
-      prompt: 'password: ',
-      silent: true,
-      replace: '•'
-    }, (error, result) => {
-      if(error) {
-        return xxh.log('error', error)
-      } else {
-        // TODO: Encrypt key
-        config.key = result
-        xxh.appendToRc(name, config)
-      }
-    })
+    
+    const child = execFile(`python setup_rsa.py`, [`${config.user} ${config.address}:${config.port}`],
+      (error, stdout, stderr) => {
+        console.log(`stdout: ${stdout}`);
+        console.log(`stderr: ${stderr}`);
+        if (error !== null) {
+          console.log(`exec error: ${error}`);
+        }
+    });
+    
+    // read({
+    //   prompt: 'password: ',
+    //   silent: true,
+    //   replace: '•'
+    // }, (error, result) => {
+    //   if(error) {
+    //     return xxh.log('error', error)
+    //   } else {
+    //     // TODO: Encrypt key
+    //     config.key = result
+    //     xxh.appendToRc(name, config)
+    //   }
+    // })
   } else {
     xxh.appendToRc(name, config)
   }
