@@ -50,7 +50,7 @@ class Xxh(object):
             new_argv = filter_opts(argv, ['-p'])
             count = len(new_argv)
             if count >= 4 and count <= 5:
-                name_idx = new_argv.index('add') + 1
+                name_idx = new_argv.index(mode) + 1
                 self.add(new_argv[name_idx], new_argv[name_idx + 1], private)
             else:
                 self.log('error', 'Expecting name & connection\n'.format(count))
@@ -61,7 +61,7 @@ class Xxh(object):
         elif mode == 'delete':
             delete_all = '--all' in argv
             new_argv = filter_opts(argv, ['--all'])
-            name_idx = new_argv.index('add') + 1
+            name_idx = new_argv.index(mode) + 1
             self.delete(new_argv[name_idx], delete_all)
         elif mode == 'edit':
             self.edit(argv[count-1])
