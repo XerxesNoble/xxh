@@ -1,10 +1,9 @@
 {
   "name": "xxh",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "CLI ssh manager",
   "main": "./xxh.py",
   "bin": "./xxh.py",
-  "man": "",
   "keywords": ["ssh", "manager", "xxh"],
   "config": {
     "commitizen": {
