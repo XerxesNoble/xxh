@@ -48,5 +48,15 @@ $ xxh delete --all
 ```bash
 # Edit connection
 $ xxh edit my_conn
+```
+
+### Help
+```bash
+# Show help
+$ xxh help
+
+# or just
+
+$ xxh
 
 ```

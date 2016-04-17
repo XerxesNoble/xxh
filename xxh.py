@@ -13,8 +13,25 @@ HOME = os.environ['HOME']
 __rc = '{0}/.xxhrc'.format(HOME)
 
 def main():
+    # If not rc file, create it
     if not os.path.isfile(__rc): open(__rc, 'w+')
-    return Xxh(argv[1], __rc)
+    # If no mode, show help
+    if len(argv) > 1: return Xxh(argv[1], __rc)
+    else:
+        print_man()
+        
+def print_man():
+    print('\n')
+    print('--- xxh ---')
+    print('\n')
+    print('SSH connection manager built in python.Sets up your rsa keys for you because life should be easy for the lazy programmer.')
+    print('\n')
+    print('add:\n\tDescription: Add connection \n\tOptions: [-p] - Set up rsa\n')
+    print('list:\n\tDescription: List all connections \n\tOptions: [-v] - Show more info\n')
+    print('edit:\n\tDescription: Edit connection\n\tOptions: None\n')
+    print('delete:\n\tDescription: Delete connection \n\tOptions: [--all] - delete all entries\n')
+    print('--- xxh ---')
+        
     
 class Xxh(object):
     
@@ -29,6 +46,7 @@ class Xxh(object):
         elif mode == 'list'    : self.list('-v' in argv)
         elif mode == 'delete'  : self.delete(argv[len(argv)-1], '--all' in argv)
         elif mode == 'edit'    : self.edit(argv[len(argv)-1])
+        elif mode == 'help'    : print_man()
         else                   : self.connect(argv[len(argv)-1])
     
     
