@@ -25,12 +25,12 @@ class Xxh(object):
         self.config.read(self.rc)
         
         # Run Actions
-        if   mode == 'add'    : self.add(argv[len(argv)-2], argv[len(argv)-1], '-p' in argv)
-        elif mode == 'list'   : self.list('-v' in argv)
-        elif mode == 'delete' : self.delete()
-        elif mode == 'edit'   : self.edit()
-        elif mode == 'connect': self.connect()
-        elif mode == 'select': self.connect() # select from a cli list ising arrows and enter
+        if   mode == 'add'     : self.add(argv[len(argv)-2], argv[len(argv)-1], '-p' in argv)
+        elif mode == 'list'    : self.list('-v' in argv)
+        elif mode == 'delete'  : self.delete(argv[len(argv)-1], '--all' in argv)
+        elif mode == 'edit'    : self.edit()
+        elif mode == 'connect' : self.connect()
+        elif mode == 'select'  : self.connect() # select from a cli list ising arrows and enter
     
     # xxh add [-p] [name] [connection]
     def add(self, name, connection, private):
@@ -52,9 +52,15 @@ class Xxh(object):
                     self.config.set(name, 'private', 'No')
                 
             # Write to config
-            with open(self.rc, 'w') as c:
-                self.config.write(c)
-                self.log('info', '{0} was added!'.format(name))
+            self.save_cofig('{0} was added!'.format(name))
+            # with open(self.rc, 'w') as c:
+            #     self.config.write(c)
+            #     self.log('info', )
+    
+    def save_cofig(self, message):
+        with open(self.rc, 'w') as c:
+            self.config.write(c)
+            if message: self.log('info', message)
     
     # xxh list [-v]
     def list(self, verbose):
@@ -66,9 +72,22 @@ class Xxh(object):
                 conn = self.config.get(section, 'connection')
                 priv = self.config.get(section, 'private')
                 print('\tName: {0} \n\tConnection: {1} \n\tAuthorized: {2}\n'.format(section, conn, priv))
-        
-    def delete(self):
-        print('delete')
+                
+    # xxh delete [connection OR --all]
+    def delete(self, name, delete_all):
+        if(name.lower() == 'delete'):
+            self.log('error', 'Please provide a connection name, or pass --all')
+            print('\n\txxh delete [connection name]\t-or-\txxh delete --all\n')
+            return
+        elif delete_all:
+            print('delete all')
+        else:
+            if self.config.has_section(name):
+                if self.query('\nAre you sure?') and self.config.remove_section(name):
+                    self.save_cofig('Deleted {0}'.format(name))
+            else:
+                self.log('error', '{0} doesn\'t exist'.format(name))
+                
         
     def edit(self):
         print('edit')
@@ -81,13 +100,13 @@ class Xxh(object):
         # TODO: Add CLI colours so its all pretty and stuff.
         if type is 'info':
             # 'black', 'on_cyan',
-            print('\n\t{0} :: {1}'.format('[ INFO ]', message))
+            print('\n{0} :: {1}'.format('[ INFO ]', message))
         elif type is 'warn':
             # 'black', 'on_yellow',
-            print('\n\t{0} :: {1}'.format('[ WARN ]', message))
+            print('\n{0} :: {1}'.format('[ WARN ]', message))
         elif type is 'error':
             # 'white', 'on_red',
-            print('\n\t{0} :: {1}'.format('[ ERR ]', message))
+            print('\n{0} :: {1}'.format('[ ERROR ]', message))
 
     def query(self, question):
         valid = {'yes': True, 'y': True, 'ye': True,
@@ -126,4 +145,7 @@ class Xxh(object):
         cmd = 'ssh {0} "cat {1} >> ~/.ssh/authorized_keys"'.format(connection, remote_file)
         call(cmd, shell=True)
 
-main()
+try:
+    main()
+except KeyboardInterrupt:
+    pass
