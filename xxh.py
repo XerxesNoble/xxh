@@ -7,13 +7,13 @@ import string
 import configparser
 from subprocess import call
 from configparser import SafeConfigParser
-# from termcolor import colored, cprint
 
 argv = sys.argv
-__rc = '{0}/.xxhrc'.format(os.path.abspath(''))
-print('DEBUG-Arguments: {0}'.format(argv))
+HOME = os.environ['HOME']
+__rc = '{0}/.xxhrc'.format(HOME)
 
 def main():
+    if not os.path.isfile(__rc): open(__rc, 'w+')
     return Xxh(argv[1], __rc)
     
 class Xxh(object):
@@ -29,7 +29,6 @@ class Xxh(object):
         elif mode == 'list'    : self.list('-v' in argv)
         elif mode == 'delete'  : self.delete(argv[len(argv)-1], '--all' in argv)
         elif mode == 'edit'    : self.edit(argv[len(argv)-1])
-        # elif mode == 'select'  : self.connect() # select from a cli list ising arrows and enter
         else                   : self.connect(argv[len(argv)-1])
     
     
@@ -48,7 +47,6 @@ class Xxh(object):
             if private:
                 # Double check with user
                 if self.query('Set up rsa keys for {0}?'.format(name)):
-                    print('OKAY!')
                     self.setup_rsa(connection)
                 else:
                     self.config.set(name, 'private', 'No')
@@ -162,9 +160,6 @@ class Xxh(object):
             
     
     def setup_rsa(self, connection):
-        # Get home dir by platform
-        HOME = os.environ['HOME']
-        
         # Create id_rsa if none exists
         if not os.path.isfile('{0}/.ssh/id_rsa'.format(HOME)):
         	call('ssh-keygen -N "" -f ~/.ssh/id_rsa > /dev/null', shell=True)

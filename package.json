@@ -2,7 +2,10 @@
   "name": "xxh",
   "version": "0.0.0",
   "description": "CLI ssh manager",
-  "main": "index.js",
+  "main": "./xxh.py",
+  "bin": "./xxh.py",
+  "man": "",
+  "keywords": ["ssh", "manager", "xxh"],
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
@@ -12,9 +15,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "xerxesnoble",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "commitizen": "2.7.6",
-    "pty.js": "0.3.0"
+    "commitizen": "2.7.6"
   }
 }
