@@ -84,7 +84,7 @@ class Xxh(object):
         else:
             if self.config.has_section(name):
                 if self.query('\nAre you sure?') and self.config.remove_section(name):
-                    self.save_cofig('Deleted {0}'.format(name))
+                    self.save_cofig('Deleted {0} \nNote: this does NOT remove the rsa keys from the remote'.format(name))
             else:
                 self.log('error', '{0} doesn\'t exist'.format(name))
                 
