@@ -2,8 +2,9 @@
   "name": "xxh",
   "version": "0.0.3",
   "description": "CLI ssh manager",
-  "main": "./xxh.py",
-  "bin": "./xxh.py",
+  "main": "./lib/xxh.py",
+  "bin": "./lib/xxh.py",
+  "man": "./man/xxh.1",
   "keywords": ["ssh", "manager", "xxh"],
   "config": {
     "commitizen": {
@@ -14,8 +15,16 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "xerxesnoble",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/XerxesNoble/xxh.git"
+  },
+  "bugs": {
+    "url": "https://github.com/XerxesNoble/xxh/issues"
+  },
+  "homepage":"https://github.com/XerxesNoble/xxh",
   "license": "MIT",
-  "dependencies": {
+  "devDependencies": {
     "commitizen": "2.7.6"
   }
 }

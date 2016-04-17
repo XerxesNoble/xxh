@@ -11,26 +11,18 @@ from configparser import SafeConfigParser
 argv = sys.argv
 HOME = os.environ['HOME']
 __rc = '{0}/.xxhrc'.format(HOME)
+__man = '{0}/man/xxh.1'.format(os.path.abspath('..'))
 
 def main():
     # If not rc file, create it
     if not os.path.isfile(__rc): open(__rc, 'w+')
     # If no mode, show help
     if len(argv) > 1: return Xxh(argv[1], __rc)
-    else:
-        print_man()
+    else: print_man()
         
 def print_man():
-    print('\n')
-    print('--- xxh ---')
-    print('\n')
-    print('SSH connection manager built in python.Sets up your rsa keys for you because life should be easy for the lazy programmer.')
-    print('\n')
-    print('add:\n\tDescription: Add connection \n\tOptions: [-p] - Set up rsa\n')
-    print('list:\n\tDescription: List all connections \n\tOptions: [-v] - Show more info\n')
-    print('edit:\n\tDescription: Edit connection\n\tOptions: None\n')
-    print('delete:\n\tDescription: Delete connection \n\tOptions: [--all] - delete all entries\n')
-    print('--- xxh ---')
+    with open(__man, 'r') as man:
+        print(man.read())
         
     
 class Xxh(object):
@@ -101,7 +93,12 @@ class Xxh(object):
             print('\n\txxh delete [connection name]\t-or-\txxh delete --all\n')
             return
         elif delete_all:
-            print('delete all')
+            if self.query('\nAre you sure you want to delete all connections?'):
+                for section in self.config.sections():
+                    if not verbose:
+                        self.config.remove_section(section)
+                        self.log('info', 'Deleted {0}'.format(section))
+                self.save_config('\nNote: this does NOT remove the rsa keys from the remote'.format(name))
         else:
             if self.config.has_section(name):
                 if self.query('\nAre you sure?') and self.config.remove_section(name):
