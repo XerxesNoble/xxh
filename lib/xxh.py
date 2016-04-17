@@ -11,19 +11,19 @@ from configparser import SafeConfigParser
 argv = sys.argv
 HOME = os.environ['HOME']
 __rc = '{0}/.xxhrc'.format(HOME)
-__man = '{0}/man/xxh.1'.format(os.path.abspath('..'))
+currDir = os.path.dirname(os.path.abspath(__file__))
+__man = '{0}'.format(os.path.abspath(currDir) + '/../man/xxh.1')
 
 def main():
     # If not rc file, create it
     if not os.path.isfile(__rc): open(__rc, 'w+')
     # If no mode, show help
     if len(argv) > 1: return Xxh(argv[1], __rc)
-    else: print_man()
+    else:
+        print('usage: \n\txxh [add [-p] name user@host | edit [name] | list [-v] | delete [name | --all] | name]')
         
 def print_man():
-    with open(__man, 'r') as man:
-        print(man.read())
-        
+    call('man {0}'.format(__man), shell=True)
     
 class Xxh(object):
     

@@ -9,6 +9,12 @@ An ssh connection manager. Sets up your rsa keys for you because life should be 
 $ npm install xxh -g
 ```
 
+### Usage
+
+```bash
+$ xxh [add [-p] name user@host | edit [name] | list [-v] | delete [name | --all] | name]
+```
+
 ### Connect
 ```bash
 # Start SSH session
