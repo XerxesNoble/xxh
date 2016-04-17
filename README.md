@@ -2,6 +2,11 @@
 
 SSH connection manager built in python. Sets up your rsa keys for you because life should be easy for the lazy programmer.
 
+### Install
+```bash
+$ npm install xxh -g
+```
+
 ### Connect
 ```bash
 # Start SSH session
