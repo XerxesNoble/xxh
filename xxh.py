@@ -29,8 +29,8 @@ class Xxh(object):
         elif mode == 'list'    : self.list('-v' in argv)
         elif mode == 'delete'  : self.delete(argv[len(argv)-1], '--all' in argv)
         elif mode == 'edit'    : self.edit(argv[len(argv)-1])
-        elif mode == 'connect' : self.connect()
-        elif mode == 'select'  : self.connect() # select from a cli list ising arrows and enter
+        # elif mode == 'select'  : self.connect() # select from a cli list ising arrows and enter
+        else                   : self.connect(argv[len(argv)-1])
     
     
     
@@ -122,10 +122,13 @@ class Xxh(object):
 
 
 
-    def connect(self):
-        call('ssh xerxes@jscd-sandbox.cloudapp.net', shell=True)
-        print('connect')
-        
+    def connect(self, name):
+        if self.config.has_section(name):
+            conn = self.config.get(name, 'connection')
+            print('Connecting to {0}'.format(conn))
+            call('ssh {0}'.format(conn), shell=True)
+        else:
+            self.log('error', '{0} doesn\'t exist'.format(name))
         
     
     def log(self, type, message):
