@@ -11,19 +11,30 @@ from configparser import SafeConfigParser
 argv = sys.argv
 HOME = os.environ['HOME']
 __rc = '{0}/.xxhrc'.format(HOME)
-currDir = os.path.dirname(os.path.abspath(__file__))
-__man = '{0}'.format(os.path.abspath(currDir) + '/../man/xxh.1')
 
 def main():
     # If not rc file, create it
     if not os.path.isfile(__rc): open(__rc, 'w+')
     # If no mode, show help
     if len(argv) > 1: return Xxh(argv[1], __rc)
-    else:
-        print('usage: \n\txxh [add [-p] name user@host | edit [name] | list [-v] | delete [name | --all] | name]')
+    else: print_usage()
+        
+def print_usage():
+    print('usage: \n\txxh [add [-p] name user@host | edit [name] | list [-v] | delete [name | --all] | name]')
         
 def print_man():
-    call('man {0}'.format(__man), shell=True)
+    call('man xxh', shell=True)
+
+def filter_opts(args, accepted):
+    filtered = []
+    for arg in args:
+        is_option = arg.find('-') == 0
+        if is_option:
+            if arg not in accepted:
+                print('Unrecognized option "{0}"'.format(arg))
+        else:
+            filtered.append(arg)
+    return filtered
     
 class Xxh(object):
     
@@ -32,15 +43,32 @@ class Xxh(object):
         self.rc = rc
         self.config = SafeConfigParser()
         self.config.read(self.rc)
-        
+        count = len(argv)
         # Run Actions
-        if   mode == 'add'     : self.add(argv[len(argv)-2], argv[len(argv)-1], '-p' in argv)
-        elif mode == 'list'    : self.list('-v' in argv)
-        elif mode == 'delete'  : self.delete(argv[len(argv)-1], '--all' in argv)
-        elif mode == 'edit'    : self.edit(argv[len(argv)-1])
-        elif mode == 'help'    : print_man()
-        else                   : self.connect(argv[len(argv)-1])
-    
+        if mode == 'add':
+            private = '-p' in argv
+            new_argv = filter_opts(argv, ['-p'])
+            count = len(new_argv)
+            if count >= 4 and count <= 5:
+                name_idx = new_argv.index('add') + 1
+                self.add(new_argv[name_idx], new_argv[name_idx + 1], private)
+            else:
+                self.log('error', 'Expecting name & connection\n'.format(count))
+                print_usage()
+        elif mode == 'list':
+            verbose = '-v' in argv
+            self.list(verbose)
+        elif mode == 'delete':
+            delete_all = '--all' in argv
+            new_argv = filter_opts(argv, ['--all'])
+            name_idx = new_argv.index('add') + 1
+            self.delete(new_argv[name_idx], delete_all)
+        elif mode == 'edit':
+            self.edit(argv[count-1])
+        elif mode == 'help':
+            print_man()
+        else:
+             self.connect(argv[len(argv)-1])
     
     
     # xxh add [-p] [name] [connection]
