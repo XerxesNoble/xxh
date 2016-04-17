@@ -61,8 +61,13 @@ class Xxh(object):
         elif mode == 'delete':
             delete_all = '--all' in argv
             new_argv = filter_opts(argv, ['--all'])
+            count = len(new_argv)
             name_idx = new_argv.index(mode) + 1
-            self.delete(new_argv[name_idx], delete_all)
+            try:
+                name = new_argv[name_idx]
+            except IndexError:
+                name = 'delete' if not delete_all else ''
+            self.delete(name, delete_all)
         elif mode == 'edit':
             self.edit(argv[count-1])
         elif mode == 'help':
