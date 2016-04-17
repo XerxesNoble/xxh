@@ -28,9 +28,11 @@ class Xxh(object):
         if   mode == 'add'     : self.add(argv[len(argv)-2], argv[len(argv)-1], '-p' in argv)
         elif mode == 'list'    : self.list('-v' in argv)
         elif mode == 'delete'  : self.delete(argv[len(argv)-1], '--all' in argv)
-        elif mode == 'edit'    : self.edit()
+        elif mode == 'edit'    : self.edit(argv[len(argv)-1])
         elif mode == 'connect' : self.connect()
         elif mode == 'select'  : self.connect() # select from a cli list ising arrows and enter
+    
+    
     
     # xxh add [-p] [name] [connection]
     def add(self, name, connection, private):
@@ -52,15 +54,16 @@ class Xxh(object):
                     self.config.set(name, 'private', 'No')
                 
             # Write to config
-            self.save_cofig('{0} was added!'.format(name))
-            # with open(self.rc, 'w') as c:
-            #     self.config.write(c)
-            #     self.log('info', )
+            self.save_config('{0} was added!'.format(name))
     
-    def save_cofig(self, message):
+    
+    
+    def save_config(self, message):
         with open(self.rc, 'w') as c:
             self.config.write(c)
             if message: self.log('info', message)
+    
+    
     
     # xxh list [-v]
     def list(self, verbose):
@@ -72,6 +75,8 @@ class Xxh(object):
                 conn = self.config.get(section, 'connection')
                 priv = self.config.get(section, 'private')
                 print('\tName: {0} \n\tConnection: {1} \n\tAuthorized: {2}\n'.format(section, conn, priv))
+            
+            
                 
     # xxh delete [connection OR --all]
     def delete(self, name, delete_all):
@@ -84,17 +89,44 @@ class Xxh(object):
         else:
             if self.config.has_section(name):
                 if self.query('\nAre you sure?') and self.config.remove_section(name):
-                    self.save_cofig('Deleted {0} \nNote: this does NOT remove the rsa keys from the remote'.format(name))
+                    self.save_config('Deleted {0} \nNote: this does NOT remove the rsa keys from the remote'.format(name))
             else:
                 self.log('error', '{0} doesn\'t exist'.format(name))
-                
         
-    def edit(self):
-        print('edit')
+        
+        
+    def edit(self, name):
+        if name.lower() == 'edit':
+            self.log('error', 'Please provide a connection name')
+            print('\n\txxh edit [connection name]\n')
+            return
+        elif self.config.has_section(name):
+            conn = self.config.get(name, 'connection')
+            priv = self.config.get(name, 'private')
+            # Get name
+            new_name = input('Name ({0}): '.format(name))
+            if new_name:
+                self.config.remove_section(name)
+                self.config.add_section(new_name)
+                self.config.set(new_name, 'connection', conn)
+                self.config.set(new_name, 'private', priv)
+                name = new_name
+            # Get connection
+            new_connection = input('Connection ({0}): '.format(conn))
+            if new_connection:
+                self.config.set(name, 'connection', new_connection)
+            # Save config
+            self.save_config('Edited {0}'.format(name))
+        else:
+            self.log('error', '{0} doesn\'t exist'.format(name))
+
+
 
     def connect(self):
         call('ssh xerxes@jscd-sandbox.cloudapp.net', shell=True)
         print('connect')
+        
+        
         
     def log(self, type, message):
         # TODO: Add CLI colours so its all pretty and stuff.
@@ -107,6 +139,8 @@ class Xxh(object):
         elif type is 'error':
             # 'white', 'on_red',
             print('\n{0} :: {1}'.format('[ ERROR ]', message))
+
+
 
     def query(self, question):
         valid = {'yes': True, 'y': True, 'ye': True,
@@ -121,7 +155,9 @@ class Xxh(object):
                 return valid[choice]
             else:
                 print('Invalid input: {0}\n'.format(choice))
-                
+            
+            
+    
     def setup_rsa(self, connection):
         # Get home dir by platform
         HOME = os.environ['HOME']
