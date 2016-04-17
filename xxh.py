@@ -77,7 +77,7 @@ class Xxh(object):
                 print('\tName: {0} \n\tConnection: {1} \n\tAuthorized: {2}\n'.format(section, conn, priv))
             
             
-                
+        
     # xxh delete [connection OR --all]
     def delete(self, name, delete_all):
         if(name.lower() == 'delete'):
@@ -92,9 +92,9 @@ class Xxh(object):
                     self.save_config('Deleted {0} \nNote: this does NOT remove the rsa keys from the remote'.format(name))
             else:
                 self.log('error', '{0} doesn\'t exist'.format(name))
-        
-        
-        
+
+
+
     def edit(self, name):
         if name.lower() == 'edit':
             self.log('error', 'Please provide a connection name')
@@ -127,7 +127,7 @@ class Xxh(object):
         print('connect')
         
         
-        
+    
     def log(self, type, message):
         # TODO: Add CLI colours so its all pretty and stuff.
         if type is 'info':
