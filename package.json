@@ -1,6 +1,6 @@
 {
   "name": "xxh",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "CLI ssh manager",
   "main": "./xxh.py",
   "bin": "./xxh.py",
