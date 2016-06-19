@@ -150,7 +150,6 @@ class Xxh(object):
                 # Remove new line char
                 data = id_rsa.read().replace('\n', '')
                 remove_key = '[ -e {1} ] && sed -i -e \'s#{0}##g\' {1}'.format(data, '~/.ssh/authorized_keys')
-                print(remove_key)
                 call('ssh {0} "{1}"'.format(conn, remove_key), shell=True)
     
     
