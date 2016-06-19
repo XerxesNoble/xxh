@@ -47,8 +47,6 @@ $ xxh list -v
 
 ### Delete
 Delete a saved connection by name or all of them.
->NOTE: This does *NOT* remove the rsa key from the
-remote computer authorized_keys file.
 
 ```bash
 # Delete connection

@@ -128,10 +128,10 @@ class Xxh(object):
         elif delete_all:
             if self.query('\nAre you sure you want to delete all connections?'):
                 for section in self.config.sections():
-                    if not verbose:
-                        self.config.remove_section(section)
-                        self.log('info', 'Deleted {0}'.format(section))
-                self.save_config('\nNote: this does NOT remove the rsa keys from the remote'.format(name))
+                    self.remove_rsa(section)
+                    self.config.remove_section(section)
+                    self.log('info', 'Deleted {0}'.format(section))
+                self.save_config('\nAll connections deleted.'.format(name))
         else:
             if self.config.has_section(name):
                 if self.query('\nAre you sure?'):
