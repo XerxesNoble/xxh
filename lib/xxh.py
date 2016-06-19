@@ -134,13 +134,26 @@ class Xxh(object):
                 self.save_config('\nNote: this does NOT remove the rsa keys from the remote'.format(name))
         else:
             if self.config.has_section(name):
-                if self.query('\nAre you sure?') and self.config.remove_section(name):
-                    self.save_config('Deleted {0} \nNote: this does NOT remove the rsa keys from the remote'.format(name))
+                if self.query('\nAre you sure?'):
+                    self.remove_rsa(name)
+                    self.config.remove_section(name)
+                    self.save_config('Deleted {0}'.format(name))
             else:
                 self.log('error', '{0} doesn\'t exist'.format(name))
 
 
-
+    def remove_rsa(self, name):
+        conn = self.config.get(name, 'connection')
+        if conn and self.query('\nRemove key from remote\'s authorized_keys?'):
+            local_file = '{0}/.ssh/id_rsa.pub'.format(HOME)
+            with open(local_file, 'r') as id_rsa:
+                # Remove new line char
+                data = id_rsa.read().replace('\n', '')
+                remove_key = '[ -e {1} ] && sed -i -e \'s#{0}##g\' {1}'.format(data, '~/.ssh/authorized_keys')
+                print(remove_key)
+                call('ssh {0} "{1}"'.format(conn, remove_key), shell=True)
+    
+    
     def edit(self, name):
         if name.lower() == 'edit':
             self.log('error', 'Please provide a connection name')
@@ -211,21 +224,24 @@ class Xxh(object):
         # Create id_rsa if none exists
         if not os.path.isfile('{0}/.ssh/id_rsa'.format(HOME)):
         	call('ssh-keygen -N "" -f ~/.ssh/id_rsa > /dev/null', shell=True)
-
-        # Generate random filename
-        random_string = ''.join(random.sample(string.ascii_uppercase + string.digits, 10))
+        # Read id_rsa.pub
         local_file = '{0}/.ssh/id_rsa.pub'.format(HOME)
-        remote_file = '/tmp/id_rsa.pub{0}'.format(random_string)
-
-        # Put rsa key in tmp dir
-        print('Enter password for "{0}", to copy id_rsa.pub'.format(connection))
-        cmd = 'echo "put {0} {1}" | sftp {2} > /dev/null 2> /dev/null'.format(local_file, remote_file, connection)
-        call(cmd, shell=True)
-
-        # Add rsa to authorized_keys
-        print('Enter password for "{0}" to append id_rsa.pub to authorized_keys'.format(connection))
-        cmd = 'ssh {0} "cat {1} >> ~/.ssh/authorized_keys"'.format(connection, remote_file)
-        call(cmd, shell=True)
+        # Create commands for setup
+        ssh_dir = '~/.ssh'
+        auth_keys = '{0}/authorized_keys'.format(ssh_dir)
+        # Shell: If there is no ~/.ssh directory, create it and chmod 700
+        create_ssh_directory = '[ ! -e {0} ] && mkdir -p {0} && chmod 700 {0}'.format(ssh_dir)
+        # Shell: If there is no ~/.ssh/authorized_keys file, create it and chmod 600
+        create_auth_keys = '[ ! -e {0} ] && touch {0} && chmod 600 {0}'.format(auth_keys)
+        # Read the local id_rsa.pub
+        with open(local_file, 'r') as id_rsa:
+            # Remove new line char
+            data = id_rsa.read().replace('\n', '')
+            # Shell: Append the local id_rsa.pub contents into ~/.ssh/authorized_keys
+            echo_auth_keys = 'echo "{0}" >> {1}'.format(data, auth_keys)
+            # Execute all commands with only one entry into machine.
+            cmd = 'ssh {0} "{1}; {2}; {3}"'.format(connection, create_ssh_directory, create_auth_keys, echo_auth_keys)
+            call(cmd, shell=True)
 
 try:
     main()
