@@ -6,7 +6,7 @@ import random
 import string
 import configparser
 from subprocess import call
-from configparser import SafeConfigParser
+from configparser import ConfigParser
 
 argv = sys.argv
 HOME = os.environ['HOME']
@@ -18,10 +18,10 @@ def main():
     # If no mode, show help
     if len(argv) > 1: return Xxh(argv[1], __rc)
     else: print_usage()
-        
+
 def print_usage():
     print('usage: \n\txxh [add [-p] name user@host | edit [name] | list [-v] | delete [name | --all] | name]')
-        
+
 def print_man():
     call('man xxh', shell=True)
 
@@ -35,13 +35,13 @@ def filter_opts(args, accepted):
         else:
             filtered.append(arg)
     return filtered
-    
+
 class Xxh(object):
-    
+
     def __init__(self, mode, rc):
         # Read config file
         self.rc = rc
-        self.config = SafeConfigParser()
+        self.config = ConfigParser()
         self.config.read(self.rc)
         count = len(argv)
         # Run Actions
@@ -74,8 +74,8 @@ class Xxh(object):
             print_man()
         else:
              self.connect(argv[len(argv)-1])
-    
-    
+
+
     # xxh add [-p] [name] [connection]
     def add(self, name, connection, private):
         if self.config.has_section(name):
@@ -85,7 +85,7 @@ class Xxh(object):
             self.config.add_section(name)
             self.config.set(name, 'connection', connection)
             self.config.set(name, 'private', 'Yes' if private else 'No')
-            
+
             # Setup private if -p was passed
             if private:
                 # Double check with user
@@ -93,19 +93,19 @@ class Xxh(object):
                     self.setup_rsa(connection)
                 else:
                     self.config.set(name, 'private', 'No')
-                
+
             # Write to config
             self.save_config('{0} was added!'.format(name))
-    
-    
-    
+
+
+
     def save_config(self, message):
         with open(self.rc, 'w') as c:
             self.config.write(c)
             if message: self.log('info', message)
-    
-    
-    
+
+
+
     # xxh list [-v]
     def list(self, verbose):
         print('')
@@ -116,9 +116,9 @@ class Xxh(object):
                 conn = self.config.get(section, 'connection')
                 priv = self.config.get(section, 'private')
                 print('\tName: {0} \n\tConnection: {1} \n\tAuthorized: {2}\n'.format(section, conn, priv))
-            
-            
-        
+
+
+
     # xxh delete [connection OR --all]
     def delete(self, name, delete_all):
         if(name.lower() == 'delete'):
@@ -151,8 +151,8 @@ class Xxh(object):
                 data = id_rsa.read().replace('\n', '')
                 remove_key = '[ -e {1} ] && sed -i -e \'s#{0}##g\' {1}'.format(data, '~/.ssh/authorized_keys')
                 call('ssh {0} "{1}"'.format(conn, remove_key), shell=True)
-    
-    
+
+
     def edit(self, name):
         if name.lower() == 'edit':
             self.log('error', 'Please provide a connection name')
@@ -187,8 +187,8 @@ class Xxh(object):
             call('ssh {0}'.format(conn), shell=True)
         else:
             self.log('error', '{0} doesn\'t exist'.format(name))
-        
-    
+
+
     def log(self, type, message):
         # TODO: Add CLI colours so its all pretty and stuff.
         if type is 'info':
@@ -206,7 +206,7 @@ class Xxh(object):
     def query(self, question):
         valid = {'yes': True, 'y': True, 'ye': True,
                  'no': False, 'n': False}
-                 
+
         while True:
             print('{0} [Y/n] '.format(question))
             choice = input().lower()
@@ -216,9 +216,9 @@ class Xxh(object):
                 return valid[choice]
             else:
                 print('Invalid input: {0}\n'.format(choice))
-            
-            
-    
+
+
+
     def setup_rsa(self, connection):
         # Create id_rsa if none exists
         if not os.path.isfile('{0}/.ssh/id_rsa'.format(HOME)):
