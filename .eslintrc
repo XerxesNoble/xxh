@@ -1,0 +1,7 @@
+{
+  "extends": "airbnb",
+  "rules": {
+    # "object-curly-newline": ["error", "never"],
+    "semi": ["error", "never", { "beforeStatementContinuationChars": "always" }]
+  }
+}
