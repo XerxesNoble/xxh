@@ -21,4 +21,5 @@ module.exports = {
   confirmDelete: o => chalk`{bold.yellow [CONFIRM]} Are you sure you want to delete alias "${o}"? [Y/n]: `,
   renamedAlias: (o, n) => chalk`{bold.green [SUCCESS]} Renamed alias "${o}" to "${n}"`,
   deletedAlias: o => chalk`{bold.green [SUCCESS]} Deleted alias "${o}"`,
+  startSession: (alias, address) => chalk`{bold.green [SESSION]} Opening ${alias} SSH session at ${address}...`,
 }
