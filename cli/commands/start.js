@@ -1,8 +1,8 @@
 const { spawn } = require('child_process')
 
-const messages = require('../messages')
-const log = require('../log')
-const config = require('../config')
+const messages = require('../lib/messages')
+const log = require('../lib/log')
+const config = require('../lib/config')
 
 module.exports = function startSession(_, shell = true) {
   const [alias] = _

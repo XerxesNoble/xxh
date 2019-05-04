@@ -1,7 +1,7 @@
-const messages = require('../messages')
-const log = require('../log')
-const question = require('../question')
-const config = require('../config')
+const messages = require('../lib/messages')
+const log = require('../lib/log')
+const question = require('../lib/question')
+const config = require('../lib/config')
 
 function saveKeys(alias, address) {
   // This is the magic, baby

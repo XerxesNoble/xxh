@@ -1,7 +1,7 @@
-const messages = require('../messages')
-const log = require('../log')
-const question = require('../question')
-const config = require('../config')
+const messages = require('../lib/messages')
+const log = require('../lib/log')
+const question = require('../lib/question')
+const config = require('../lib/config')
 
 module.exports = async function renameAlias([currentAlias, newAlias]) {
   if (config.has(currentAlias) && !config.has(newAlias)) {

@@ -2,10 +2,9 @@
   "name": "xxh",
   "version": "1.0.0",
   "description": "[![NPM](https://nodei.co/npm/xxh.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/xxh/)",
-  "main": "index.js",
+  "main": "cli/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node-gyp configure build --debug"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
